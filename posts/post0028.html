@@ -1,0 +1,119 @@
+Making Mysql safe for transactional usage
+
+making-mysql-safe-for-transactional-usage
+
+2010/05/06
+
+By default, Mysql is not safe to run in transactional mode and store mission critical data such as financial transactions. By <em>safety</em> I mean correctnessi wrt. gotchas and silent undesired behaviour. For example, a Mysql server was migrated to a new one, but the new one had skip-innodb turned on, which resulted in all tables becoming non-transactional. Thanks to other settings, this only resulted in warnings which went unnoticed for months. Or, by default, Mysql will insert the value "0xyz" into an INT column instead of issuing an error, although this is clearly some type of mistake. The default configuration is optimized to work well for a website such as a blog. This is OK, because most Mysql users are using it for just that. That is also why most "advanced" articles discuss how to tune Mysql performance, but I couldn't find good guides (eg. a checklist) on making in transactionally safe. For a list of gotchas, see the <a href="http://sql-info.de/mysql/gotchas.html">Mysql gotchas page</a>.
+MARKER
+
+Here's my list of things to make Mysql safe(r) for transactional usage:
+<ol>
+
+<li>
+<a href="http://dev.mysql.com/doc/refman/5.0/en/server-sql-mode.html">Server SQL Modes</a>:
+<ul>
+<li>STRICT_ALL_TABLES: Enable strict mode for all storage engines. Invalid data values are rejected.</li>
+<li>NO_ENGINE_SUBSTITUTION: Control automatic substitution of the default storage engine when a statement such as CREATE TABLE or ALTER TABLE specifies a storage engine that is disabled or not compiled in.</li>
+<li>NO_ZERO_DATE: In strict mode, don't allow '0000-00-00' as a valid date. You can still insert zero dates with the IGNORE option. When not in strict mode, the date is accepted but a warning is generated.</li>
+<li>NO_ZERO_IN_DATE: In strict mode, do not accept dates where the year part is nonzero but the month or day part is 0 (for example, '0000-00-00' is legal but '2010-00-01' and '2010-01-00' are not).</li>
+<li>TRADITIONAL: Make MySQL behave like a “traditional” SQL database system. A simple description of this mode is “give an error instead of a warning” when inserting an incorrect value into a column.</li>
+</ul>
+</li>
+
+<li>
+<a href="http://dev.mysql.com/doc/refman/5.0/en/set-transaction.html">Transaction isolation levels</a>: set this to SERIALIZABLE, then go down if necessary. The InnoDB default is REPEATABLE READ. The <a href="http://en.wikipedia.org/wiki/Isolation_%28database_systems%29">Wikipedia page on isolation</a> explains the difference between the levels (easy to forget) and gives some examples.
+<ul>
+<li>READ UNCOMMITTED: Barely transactional, this setting allows for so-called 'dirty reads', where queries inside one transaction are affected by uncommitted changes in another transaction.</li>
+<li>READ COMMITTED: Committed updates are visible within another transaction. This means identical queries within a transaction can return differing results. This is the default in some DBMS's.</li>
+<li>REPEATABLE READ: The default isolation level for InnoDB tables. Within a transaction, all reads are consistent.</li>
+<li>SERIALIZABLE: Updates are not permitted in other transactions if a transaction has run an ordinary SELECT query, i.e. queries are treated as if they had a LOCK IN SHARE MODE, which we saw in action last month.</li>
+</ul>
+</li>
+
+<li>
+Set the default engine to InnoDB: you don't want to accidently end up with MyISAM tables. Unfortunately it's not possible to disable MyISAM altogether (there's no skip-myisam).
+</li>
+
+<li>
+Set all defaults to UTF-8 to avoid character encoding issues. Use init-connect to force users' connections to use UTF-8, too.
+</li>
+
+<li>
+Log all warnings: as far as I can tell, this is not possible in Mysql. This is a problem, for example if you try to rollback a transaction that wrote into a MyISAM table, that will only generate a warning. The best thing would be to have Mysql generate an error in this case (not possible), the second-best thing would be to log all warnings, but it seems there's no option for this. You can specify --show-warnings to the mysql client, but that won't help if you're trying to catch warning running in a stored procedure from a cronjob.
+</li>
+
+<li>
+Make sure your hardware doesn't do extra chaching and doesn't reorder writes. The Mysql documentation says: On ATA/SATA disk drives, a command such hdparm -W0 /dev/hda may work to disable the write-back cache. Beware that some drives or disk controllers may be unable to disable the write-back cache.
+</li>
+
+<li>
+Log slow queries which potentially block other transactions.
+</li>
+
+<li>
+Use <a href="http://www.linux-mag.com/cache/7646/1.html">innotop</a> to keep and eye on your transaction workload.
+</li>
+
+</ol>
+
+With that said, here's my my.cnf:
+<pre>
+[client]
+port			= 3306
+socket			= /var/run/mysqld/mysqld.sock
+
+[mysqld_safe]
+socket			= /var/run/mysqld/mysqld.sock
+nice			= 0
+
+[mysqld]
+user			= mysql
+pid-file		= /var/run/mysqld/mysqld.pid
+socket			= /var/run/mysqld/mysqld.sock
+port			= 3306
+basedir			= /usr
+datadir			= /var/lib/mysql
+tmpdir			= /tmp
+language		= /usr/share/mysql/english
+bind-address		= 127.0.0.1
+key_buffer		= 16M
+max_allowed_packet	= 16M
+thread_stack		= 128K
+thread_cache_size	= 8
+myisam-recover		= BACKUP
+query_cache_limit       = 1M
+query_cache_size        = 16M
+max_binlog_size         = 100M
+
+# the settings below make Mysql safe for transactional usage
+transaction-isolation	= SERIALIZABLE
+sql-mode		= STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,TRADITIONAL
+default-storage_engine	= innodb
+init_connect		= 'SET collation_connection = utf8_general_ci; SET NAMES utf8;'
+default-character-set	= utf8
+character-set-server	= utf8
+collation-server	= utf8_general_ci
+
+log-warnings            = 2
+log                     = /var/log/mysql.log
+log-error		= /var/log/mysql.err
+log_slow_queries        = /var/log/mysql-slow.log
+long_query_time = 2
+log-queries-not-using-indexes
+
+skip-external-locking
+skip-bdb
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet	= 16M
+
+[isamchk]
+key_buffer		= 16M
+
+!includedir /etc/mysql/conf.d/
+</pre>
+
+If you think I missed something or have any suggestions, please post a comment!

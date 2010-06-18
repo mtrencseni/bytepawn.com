@@ -1,0 +1,235 @@
+Readings in Distributed Systems
+
+readings-in-distributed-systems
+
+An expanding list of papers on Distributed Systems. If you think something important is missing from this page, please <a href="http://bytepawn.com/about/">email me</a>.
+
+<h1>I. The Google Papers</h1>
+
+A complete list of papers written by Googlers is <a href="http://research.google.com/pubs/papers.html">here</a>. The 5 papers below describe the core of their MapReduce/GoogleFS/BigTable system.
+
+<h3>1. <a href="http://labs.google.com/papers/gfs.html">The Google File System</a></h3> 
+Sanjay Ghemawat, Howard Gobioff, and Shun-Tak Leung
+<blockquote>
+We have designed and implemented the Google File System, a scalable distributed file system for large distributed data-intensive applications. It provides fault tolerance while running on inexpensive commodity hardware, and it delivers high aggregate performance to a large number of clients. 
+
+While sharing many of the same goals as previous distributed file systems, our design has been driven by observations of our application workloads and technological environment, both current and anticipated, that reflect a marked departure from some earlier file system assumptions. This has led us to reexamine traditional choices and explore radically different design points. 
+
+The file system has successfully met our storage needs. It is widely deployed within Google as the storage platform for the generation and processing of data used by our service as well as research and development efforts that require large data sets. The largest cluster to date provides hundreds of terabytes of storage across thousands of disks on over a thousand machines, and it is concurrently accessed by hundreds of clients. 
+
+In this paper, we present file system interface extensions designed to support distributed applications, discuss many aspects of our design, and report measurements from both micro-benchmarks and real world use.
+</blockquote>
+
+<h3>2. <a href="http://labs.google.com/papers/bigtable.html">Bigtable: A Distributed Storage System for Structured Data</a></h3>
+Fay Chang, Jeffrey Dean, Sanjay Ghemawat, Wilson C. Hsieh, Deborah A. Wallach, Mike Burrows, Tushar Chandra, Andrew Fikes, and Robert E. Gruber
+<blockquote>
+Bigtable is a distributed storage system for managing structured data that is designed to scale to a very large size: petabytes of data across thousands of commodity servers. Many projects at Google store data in Bigtable, including web indexing, Google Earth, and Google Finance. These applications place very different demands on Bigtable, both in terms of data size (from URLs to web pages to satellite imagery) and latency requirements (from backend bulk processing to real-time data serving). Despite these varied demands, Bigtable has successfully provided a flexible, high-performance solution for all of these Google products. In this paper we describe the simple data model provided by Bigtable, which gives clients dynamic control over data layout and format, and we describe the design and implementation of Bigtable.
+</blockquote>
+
+<h3>3. <a href="http://labs.google.com/papers/chubby.html">The Chubby Lock Service for Loosely-Coupled Distributed Systems</a></h3>
+Mike Burrows
+<blockquote>
+We describe our experiences with the Chubby lock service, which is intended to provide coarse-grained locking as well as reliable (though low-volume) storage for a loosely-coupled distributed system. Chubby provides an interface much like a distributed file system with advisory locks, but the design emphasis is on availability and reliability, as opposed to high performance. Many instances of the service have been used for over a year, with several of them each handling a few tens of thousands of clients concurrently. The paper describes the initial design and expected use, compares it with actual use, and explains how the design had to be modified to accommodate the differences.
+</blockquote>
+
+<h3>4. <a href="http://labs.google.com/papers/paxos_made_live.html">Paxos Made Live - An Engineering Perspective</a></h3>
+Tushar Chandra, Robert Griesemer, and Joshua Redstone
+<blockquote>
+Abstract We describe our experience building a fault-tolerant data-base using the Paxos consensus algorithm. Despite the existing literature in the field, building such a database proved to be non-trivial. We describe selected algorithmic and engineering problems encountered, and the solutions we found for them. Our measurements indicate that we have built a competitive system.
+</blockquote>
+
+<h3>5. <a href="http://labs.google.com/papers/mapreduce.html">MapReduce: Simplified Data Processing on Large Clusters</a></h3>
+Jeffrey Dean and Sanjay Ghemawat
+<blockquote>
+MapReduce is a programming model and an associated implementation for processing and generating large data sets. Users specify a map function that processes a key/value pair to generate a set of intermediate key/value pairs, and a reduce function that merges all intermediate values associated with the same intermediate key. Many real world tasks are expressible in this model, as shown in the paper. 
+
+Programs written in this functional style are automatically parallelized and executed on a large cluster of commodity machines. The run-time system takes care of the details of partitioning the input data, scheduling the program's execution across a set of machines, handling machine failures, and managing the required inter-machine communication. This allows programmers without any experience with parallel and distributed systems to easily utilize the resources of a large distributed system. 
+
+Our implementation of MapReduce runs on a large cluster of commodity machines and is highly scalable: a typical MapReduce computation processes many terabytes of data on thousands of machines. Programmers find the system easy to use: hundreds of MapReduce programs have been implemented and upwards of one thousand MapReduce jobs are executed on Google's clusters every day.
+</blockquote>
+
+<h1>II. The Scalien papers</h1>
+
+<h3>1. <a href="http://scalien.com/whitepapers">Keyspace</a></h3>
+Marton Trencseni, Attila Gazso
+<blockquote>
+This paper describes the design and architecture of Keyspace, a distributed key-value store offering strong consistency, fault-tolerance and high availability.
+The source code is released as free, open-source software under the BSD license. Keyspace is a product of Scalien Software, available for download at http://scalien.com.
+</blockquote>
+
+<h3>2. <a href="http://scalien.com/whitepapers">PaxosLease</a></h3>
+Marton Trencseni, Attila Gazso, Holger Reinhardt
+<blockquote>
+This paper describes PaxosLease, a distributed algorithm for lease negotiation.
+PaxosLease is based on Paxos, but does not require disk writes or clock synchrony.
+PaxosLease is used for master lease negotation in the open-source Keyspace replicated key-value store.
+</blockquote>
+
+<h1>III. Distributed Filesystems</h1>
+
+Also see the Google Filesystem.
+
+<h3>1. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=Mam&q=Petal%3A+Distributed+Virtual+Disks&btnG=Search">Petal: Distributed Virtual Disks</a></h3>
+Edward K. Lee and Chandramohan A. Thekkath
+<blockquote>
+The ideal storage system is globally accessible, always available, provides unlimited performance and capacity for a large number of clients, and requires no management. This paper describes the design, implementation, and performance of Petal, a system that attempts to approximate this ideal in practice through a novel combination of features. Petal consists of a collection of networkconnected servers that cooperatively manage a pool of physical disks. To a Petal client, this collection appears as a highly available block-level storage system that provides large abstract containers called virtual disks. A virtual disk is globally accessibleto all Petal clients on the network. A client can create a virtual disk on demand to tap the entire capacity and performance of the underlying physical resources. Furthermore, additional resources, such as servers and disks, can be automatically incorporated into Petal. We have an initial Petal prototype consisting of four 225MHz DEC 3000/700 workstations running Digital Unix and connected by a 155 Mbit/s ATM network. The prototype provides clients with virtual disks that tolerate and recover from disk, server, and network failures. Latency is comparable to a locally attached disk, and throughput scales with the number of servers. The prototype can achieve I/O rates of up to 3150 requests/sec and bandwidth up to 43.1 Mbytes/sec.
+</blockquote>
+
+<h3>2. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&q=Frangipani%3A+A+Scalable+Distributed+File+System&btnG=Search">Frangipani: A Scalable Distributed File System</a></h3>
+Chandramohan A. Thekkath, Timothy Mann, Edward K. Lee
+<blockquote>
+The ideal distributed file system wouldprovide all its users with coherent, shared access to the same set of files,yet would be arbitrarily scalable to provide more storage space and higher performance to a growing user community. It would be highly available in spite of component failures. It would require minimal human administration, and administration would not become more complex as more components were added. Frangipani is a new file system that approximates this ideal, yet was relatively easy to build because of its two-layer structure. The lower layer is Petal (described in an earlier paper), a distributed storage service that provides incrementally scalable, highly available, automatically managed virtual disks. In the upper layer, multiple machines run the same Frangipani file system code on top of a shared Petal virtual disk, using a distributed lock service to ensure coherence. Frangipani is meant to run in a cluster of machines that are under a common administration and can communicate securely. Thus the machines trust one another and the shared virtual disk approach is practical. Of course, a Frangipani file system can be exported to untrusted machines using ordinary network file access protocols. We have implemented Frangipani on a collection of Alphas running DIGITAL Unix 4.0. Initial measurements indicate that Frangipani has excellent single-server performance and scales well as servers are added.
+</blockquote>
+
+<h3>3. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&q=GPFS%3A+A+Shared-Disk+File+System+for+Large+Computing+Clusters++&btnG=Search">GPFS: A shared-disk file system for large computing clusters</a></h3>
+Frank Schmuck, Roger Haskin
+<blockquote>
+GPFS is IBM’s parallel, shared-disk file system for cluster computers, available on the RS/6000 SP parallel supercomputer and on Linux clusters. GPFS is used on many of the largest supercomputers in the world. GPFS was built on many of the ideas that were developed in the academic community over the last several years, particularly distributed locking and recovery technology. To date it has been a matter of conjecture how well these ideas scale. We have had the opportunity to test those limits in the context of a product that runs on the largest systems in existence. While in many cases existing ideas scaled well, new approaches were necessary in many key areas. This paper describes GPFS, and discusses how distributed locking and recovery techniques were extended to scale to large clusters.
+</blockquote>
+
+<h3>4. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&q=Replication+in+the+Harp+File+System&btnG=Search">Replication in the Harp File System</a></h3>
+Barbara Liskov, Sanjay Ghemawat, Robert Gruber, Paul Johnson, Liuba Shrira, Michael Williams
+<blockquote>
+Harp uses the primary copy replication technique [1, 26, 27]. In this method, client calls are directed to a single primary server, which communicates This paper describes the design and implementation of the with other backup servers and waits for them to respond Harp file system. Harp is a replicated Unix file system before replying to the client. The system masks failures by accessible via the VFS interface. It provides highly availperforming a failover algorithm in which an inaccessible able and reliable storage for files and guarantees that file server is removed from service. When a primary performs operations are executed atomically in spite of concurrency an operation, it must inform enough backups to guarantee and failures. It uses a novel variation of the primary copy that the effects of that operation will survive all subsequent replication technique that provides good performance befailovers. cause it allows us to trade disk accesses for network comHarp is one of the first implementations of a primary munication. Harp is intended to be used within a file sercopy scheme that runs on conventional hardware. It has vice in a distributed network; in our current implemensome novel features that allow it to perform well. The key tation, it is accessed via NFS. Preliminary performance performance issues are how to provide quick response for results indicate that Harp provides equal or better response user operations and how to provide good system capacity time and system capacity than an unreplicated implemen-(roughly, the number of operations the system can handle tation of NFS that uses Unix files directly. in some time period while still providing good response time).
+</blockquote>
+
+<h3>5. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&q=Swift%3A+Using+Distributed+Disk+Striping+to+Provide+High+I%2FO++Data+Rates&btnG=Search">Swift: Using distributed disk striping to provide high I/O data rates</a></h3>
+Luis-felipe Cabrera, Darrell D. E. Long
+<blockquote>
+We present an I/O architecture, called Swift, that addresses the problem of data rate mismatches between the requirements of an application, storage devices, and the interconnection medium. The goal of Swift is to support high data rates in general purpose distributed systems. Swift uses a high-speed interconnection medium to provide high data rate transfers by using multiple slower storage devices in parallel. It scales well when using multiple storage devices and interconnections, and can use any appropriate storage technology, including high-performance devices such as disk arrays. To address the problem of partial failures, Swift stores data redundantly. Using the UNIX operating system, we have constructed a simplified prototype of the Swift architecture. The prototype provides data rates that are significantly faster than access to the local SCSI disk, limited by the capacity of a single Ethernet segment, or in the case of multiple Ethernet segments by the ability of the client to drive them. We have constructed a simulation model to demonstrate how the Swift architecture can exploit advances in processor, communication and storage technology. We consider the effects of processor speed, interconnection capacity, and multiple storage agents on the utilization of the components and the data rate of the system. We show that the data rates scale well in the number of storage devices, and that by replacing the most highly stressed components by more powerful ones the data rates of the entire system increase significantly.
+</blockquote>
+
+<h3>6. <a href="http://www.google.com/search?client=opera&rls=en&q=Ceph:+A+Scalable,+High-Performance+Distributed+File+System&sourceid=opera&ie=utf-8&oe=utf-8">Ceph: a scalable, high-performance distributed file system</a></h3>
+Sage A. Weil, Scott A. Brandt, Ethan L. Miller, Darrell D. E. Long, Carlos Maltzahn
+<blockquote>
+We have developed Ceph, a distributed file system that provides excellent performance, reliability, and scalability. Ceph maximizes the separation between data and metadata management by replacing allocation tables with a pseudo-random data distribution function (CRUSH) designed for heterogeneous and dynamic clusters of unreliable object storage devices (OSDs). We leverage device intelligence by distributing data replication, failure detection and recovery to semi-autonomous OSDs running a specialized local object file system. A dynamic distributed metadata cluster provides extremely efficient metadata management and seamlessly adapts to a wide range of general purpose and scientific computing file system workloads. Performance measurements under a variety of workloads show that Ceph has excellent I/O performance and scalable metadata management, supporting more than 250,000 metadata operations per second.
+</blockquote>
+
+<h3>7. <a href="http://www.xtreemfs.com/publications.php">XtreemFS - a case for object-based storage in Grid data management</a></h3>
+Felix Hupfeld, Toni Cortes, Björn Kolbeck, Jan Stender, Erich Focht, Matthias Hess, Jesus Malo, Jonathan Marti, Eugenio Cesario
+<blockquote>
+In today's Grids, files are usually managed by Grid data management systems that are superimposed on existing file and storage systems. In this position paper, we analyze this predominant approach and argue that object-based file systems can be an alternative when adapted to the characteristics of a Grid environment. We describe how we are solving the challenge of extending the object-based storage architecture for the Grid in XtreemFS, an object-based file system for federated infrastructures.
+</blockquote>
+
+<h3>8. Andrew FS</h3>
+<a href="http://en.wikipedia.org/wiki/Andrew_File_System">AFS</a> is an ancient distributed filesystem, OpenAFS being an open-source implementation. I couldn't find a good overview paper about either.
+
+<h3>9. Lustre</h3>
+There's a bunch of information at <a href="http://arch.lustre.org/">arch.lustre.org</a> about the architecture, but I could not find a good overview paper.
+
+<h3>10. GlusterFS</h3>
+GlusterFS is a new semi-serious open-source distributed filesystem. Looking at the <a href="http://www.gluster.org/docs/index.php/GlusterFS">wiki</a>, it seems to me that the guarantees and semantics of the system are not clear, especially given that certain modules can be stacked in different order, both on server and client nodes.
+
+<h3>11. <a href="http://www.google.com/search?client=opera&rls=en&q=Sinfonia:+A+new+paradigm+for+building+scalable+distributed+systems&sourceid=opera&ie=utf-8&oe=utf-8">Sinfonia: A new paradigm for building scalable distributed systems</a></h3>
+Marcos K. Aguilera, Arif Merchant, Mehul Shah, Alistair Veitch, Christos Karamanolis
+<blockquote>We propose a new paradigm for building scalable distributed systems. Our approach does not require dealing with message-passing protocols—a major complication in existing distributed systems. Instead, developers just design and manipulate data structures within our service called Sinfonia. Sinfonia keeps data for applications on a set of memory nodes, each exporting a linear address space. At the core of Sinfonia is a novel minitransaction primitive that enables efﬁcient and consistent access to data, while hiding the complexities that arise from concurrency and failures. Using Sinfonia, we implemented two very different and complex applications in a few months: a cluster ﬁle system and a group communication service. Our implementations perform well and scale to hundreds of machines.
+</blockquote>
+
+<h1>IV. Non-relational Distributed Databases</h1>
+
+Also see the Google's Bigtable. This section is a work-in-progress.
+
+<h3>1. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=eS9&q=Dynamo%3A+Amazon%E2%80%99s+Highly+Available+Key-value+Store&btnG=Search">Dynamo: Amazon’s Highly Available Key-value Store</a></h3>
+Giuseppe DeCandia, Deniz Hastorun, Madan Jampani, Gunavardhan Kakulapati, Avinash Lakshman, Alex Pilchin, Swaminathan Sivasubramanian, Peter Vosshall and Werner Vogels
+<blockquote>
+Reliability at massive scale is one of the biggest challenges we face at Amazon.com, one of the largest e-commerce operations in the world; even the slightest outage has significant financial consequences and impacts customer trust. The Amazon.com platform, which provides services for many web sites worldwide, is implemented on top of an infrastructure of tens of thousands of servers and network components located in many datacenters around the world. At this scale, small and large components fail continuously and the way persistent state is managed in the face of these failures drives the reliability and scalability of the software systems.
+
+This paper presents the design and implementation of Dynamo, a highly available key-value storage system that some of Amazon's core services use to provide an "always-on" experience. To achieve this level of availability, Dynamo sacrifices consistency under certain failure scenarios. It makes extensive use of object versioning and application-assisted conflict resolution in a manner that provides a novel interface for developers to use.
+</blockquote>
+
+<h3>2. Facebook's Cassandra</h3>
+There's no paper about it, but it's open-source, written in Java. Here's the <a href="http://en.wikipedia.org/wiki/Cassandra_(database)">Wikipedia entry</a>.
+
+<h3>3. CouchDB</h3>
+There's no paper about it, but it's open-source, written in Erlang. Here's the <a href="http://en.wikipedia.org/wiki/CouchDB">Wikipedia entry</a>.
+
+<h3>4. <a href="http://project-voldemort.com/">Project Voldemort</a></h3>
+Voldemort is a distributed key-value storage system similar to Amazon's Dynamo, written in Java, available as open-source. It is used at LinkedIn for certain high-scalability storage problems where simple functional partitioning is not sufficient. As their page says, it is still a new system which has rough edges, bad error messages, and probably plenty of uncaught bugs.
+
+<h3>5. <a href="http://www.google.com/search?client=opera&rls=en&q=yahoo+pnuts&sourceid=opera&ie=utf-8&oe=utf-8">Yahoo's PNUTS</a></h3>
+Brian F. Cooper, Raghu Ramakrishnan, Utkarsh Srivastava, Adam Silberstein,
+Philip Bohannon, Hans-Arno Jacobsen, Nick Puz, Daniel Weaver and Ramana Yerneni
+<blockquote>
+We describe PNUTS, a massively parallel and geographically distributed database system for Yahoo!'s web applications. PNUTS provides data storage organized as hashed or ordered tables, low latency for large numbers of concurrent requests including updates and queries, and novel per-record consistency guarantees. It is a hosted, centrally managed, and geographically distributed service, and utilizes automated load-balancing and failover to reduce operational complexity. The .rst version of the system is currently serving in production. We describe the motivation for PNUTS and the design and implementation of its table storage and replication layers, and then present experimental results.
+</blockquote>
+
+<h1>V. The Lamport Papers</h1>
+
+Lamport's homepage with a complete list of papers is <a href="http://research.microsoft.com/users/lamport/pubs/pubs.html">here</a>.
+
+<h3>1. <a href="http://www.google.com/search?client=opera&rls=en&q=paxos+made+simple&sourceid=opera&ie=utf-8&oe=utf-8">Paxos made simple</a></h3>
+L. Lamport
+<blockquote>
+The Paxos algorithm,
+when presented in plain English,
+is very simple.
+</blockquote>
+
+<h3>2. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=Gwm&q=reaching+agreement+in+the+presence+of+faults&btnG=Search">Reaching Agreement in the Presence of Faults</a></h3>
+M. Pease, R. Shostak, L. Lamport
+<blockquote>
+The problem addressed here concerns a set of isolated processors, some unknown subset of which may be faulty, that communicate only by means of two-party messages. Each nonfaulty processor has a private value of information that must be communicated to each other nonfaulty processor. Nonfaulty processors always communicate honestly, whereas faulty processors may lie. The problem is to devise an algorithm in which processors communicate their own values and relay values received from others that allows each nonfaulty processor to infer a value for each other processor. The value inferred for a nonfaulty processor must be that processor's private value, and the value inferred for a faulty one must be consistent with the corresponding value inferred by each other nonfaulty processor. It is shown that the problem is solvable for, and only for, n ≥ 3m + 1, where m is the number of faulty processors and n is the total number. It is also shown that if faulty processors can refuse to pass on information but cannot falsely relay information, the problem is solvable for arbitrary n ≥ m ≥ 0. This weaker assumption can be approximated in practice using cryptographic methods.
+</blockquote>
+
+<h3>3. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=oym&q=time%2C+clocks%2C+and+the+ordering+of+events+in+a+distributed+system&btnG=Search">Time, clocks, and the ordering of events in a distributed system</a></h3>
+L. Lamport
+<blockquote>
+The concept of one event happening before another in a distributed system is examined, and is shown to define a partial ordering of the events. A distributed algorithm is given for synchronizing a system of logical clocks which can be used to totally order the events. The use of the total ordering is illustrated with a method for solving synchronization problems. The algorithm is then specialized for synchronizing physical clocks, and a bound is derived on how far out of synchrony the clocks can become.
+</blockquote>
+
+<h3>4. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=gzm&q=the+part-time+parliament&btnG=Search">The Part-Time Parliament</a></h3>
+L. Lamport
+<blockquote>
+Recent archaeological discoveries on the island of Paxos reveal that the parliament functioned despite the peripatetic propensity of its part-time legislators. The legislators maintained consistent copies of the parliamentary record, despite their frequent forays from the chamber and the forgetfulness of their messengers. The Paxon parliament's protocol provides a new way of implementing the state machine approach to the design of distributed systems.
+</blockquote>
+
+<h3>5. <a href="http://www.google.com/search?client=opera&rls=en&q=Distributed+snapshots:+determining+global+states+of+distributed+systems&sourceid=opera&ie=utf-8&oe=utf-8">Distributed snapshots: determining global states of distributed systems</a></h3>
+K.M. Chandy, L. Lamport
+<blockquote>
+This paper presents an algorithm by which a process in a distributed system determines a global state of the system during a computation. Many problems in distributed systems can be cast in terms of the problem of detecting global states. For instance, the global state detection algorithm helps to solve an important class of problems: stable property detection. A stable property is one that persists: once a stable property becomes true it remains true thereafter. Examples of stable properties are “computation has terminated,” “ the system is deadlocked” and “all tokens in a token ring have disappeared.” The stable property detection problem is that of devising algorithms to detect a given stable property. Global state detection can also be used for checkpointing.
+</blockquote>
+
+<h1>VI. Implementation Issues</h1>
+
+<h3>1. <a href="http://www.google.com/search?client=opera&rls=en&q=A+scalable+and+explicit+event+delivery+mechanism+for+UNIX&sourceid=opera&ie=utf-8&oe=utf-8">A scalable and explicit event delivery mechanism for UNIX</a></h3>
+G. Banga, J.C. Mogul, P. Druschel
+<blockquote>
+UNIX applications not wishing to block when doing I/O often use the select() system call, to wait for events on multiple file descriptors. The select() mechanism works well for small-scale applications, but scales poorly as the number of file descriptors increases. Many modern applications, such as Internet servers, use hundreds or thousands of file descriptors, and suffer greatly from the poor scalability of select(). Previous work has shown that while the traditional implementation of select () can be improved, the poor scalability is inherent in the design. We present a new event-delivery mechanism, which allows the application to register interest in one or more sources of events, and to efficiently dequeue new events. We show that this mechanism, which requires only minor changes to applications, performs independently of the number of file descriptors.
+</blockquote>
+
+<h3>2. <a href="http://www.google.com/search?client=opera&rls=en&q=A+design+framework+for+highly+concurrent+systems&sourceid=opera&ie=utf-8&oe=utf-8">A design framework for highly concurrent systems</a></h3>
+Matt Welsh, Steven D. Gribble, Eric A. Brewer, David Culler
+
+<blockquote>
+Building highly concurrent systems, such as large-scale Internet services, requires managing many information flows at once and maintaining peak throughput when demand exceeds resource availability. In addition, any platform supporting Internet services must provide high availability and be able to cope with burstiness of load. Many approaches to building concurrent systems have been proposed, which generally fall into the two categories of threaded and eventdriven programming. We propose that threads and events are actually on the ends of a design spectrum, and that the best implementation strategy for these applications is somewhere in between. We present a general-purpose design framework for building highly concurrent systems, based on three design components — tasks, queues, and thread pools — which encapsulate the concurrency, performance, fault isolation, and software engineering benefits of both threads and events. We present a set of design patterns that can be applied to map an application onto an implementation using these components. In addition, we provide an analysis of several systems (including an Internet services platform and a highly available, distributed, persistent data store) constructed using our framework, demonstrating its benefit for building and reasoning about concurrent applications.
+</blockquote>
+
+<h3>3. <a href="http://www.google.com/search?client=opera&rls=en&q=Comparing+and+evaluating+epoll,+select,+and+poll+event+mechanisms&sourceid=opera&ie=utf-8&oe=utf-8">Comparing and evaluating epoll, select, and poll event mechanisms</a></h3>
+Louay Gammo, Tim Brecht, Amol Shukla, and David Pariag
+<blockquote>
+This paper uses a high-performance, event-driven, HTTP server (the µserver) to compare the performance of the select, poll, and epoll event mechanisms. We subject the µserver to a variety of workloads that allow us to expose the relative strengths and weaknesses of each event mechanism.
+
+Interestingly, initial results show that the se lect and poll event mechanisms perform com parably to the epoll event mechanism in the absence of idle connections. Profiling data shows a significant amount of time spent executing a large number of epoll_ctl system calls. As a result, we examine a variety of techniques for reducing epoll_ctl overhead including edge-triggered notification, and introducing a new system call (epoll_ctlv) that aggregates several epoll_ctl calls into a single call. Our experiments indicate that although these techniques are successful at reducing epoll_ctl overhead, they only improve performance slightly.
+</blockquote>
+
+<h3>4. <a href="http://www.linuxinsight.com/files/ols2003/pulavarty-reprint.pdf">Asynchronous I/O support in Linux 2.5</a></h3>
+Suparna Bhattacharya, Steven Pratt, Badari Pulavarty, Janet Morgan
+<blockquote>This paper describes the Asynchronous I/O (AIO) support in the Linux 2.5 kernel, additional functionality available as patchsets, and plans for further improvements. More speciﬁcally, the following topics are treated in some depth:
+
+• Asynchronous ﬁlesystem I/O 
+• Asynchronous direct I/O 
+• Asynchronous vector I/O 
+
+As of Linux 2.5, AIO falls into the common mainline path underlying all I/O operations, whether synchronous or asynchronous. The implications of this, and other signiﬁcant ways in which the design for AIO in 2.5 differs from the patches that existed for 2.4, are explored as part of the discussion.</blockquote>
+
+<h3>5. <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=Axe&q=%22Asynchronous+I%2FO+support+in+Linux+2.5%22&btnG=Search">Linux AIO performance and robustness for enterprise workloads</a></h3>
+Suparna Bhattacharya, John Tran, Mike Sullivan, Chris Mason
+<blockquote>In this paper we address some of the issues identiﬁed during the development and stabilization of Asynchronous I/O (AIO) on Linux 2.6. 
+
+We start by describing improvements made to optimize the throughput of streaming buffered ﬁlesystem AIO for microbenchmark runs. Next, we discuss certain tricky issues in ensuring data integrity between AIO Direct I/O (DIO) and buffered I/O, and take a deeper look at synchronized I/O guarantees, concurrent I/O, write-ordering issues and the improvements resulting from radix-tree based writeback changes in the Linux VFS. 
+
+We then investigate the results of using Linux 2.6 ﬁlesystem AIO on the performance metrics for certain enterprise database workloads which are expected to beneﬁt from AIO, and mention a few tips on optimizing AIO for such workloads. Finally, we brieﬂy discuss the issues around workloads that need to combine asynchronous disk I/O and network I/O.
+</blockquote>
+
+<h3>6. Books written by the late W. Richard Stevens</h3>
+Here's a <a href="http://www.amazon.com/exec/obidos/search-handle-url/ref=ntt_athr_dp_sr_1?%5Fencoding=UTF8&search-type=ss&index=books&field-author=W.%20Richard%20Stevens">list of books</a> from Amazon, which includes classics like <em>TCP/IP Illustrated Volume 1-3, Advanced Programming in the UNIX Environment</em> and <em>Unix Network Programming</em>.

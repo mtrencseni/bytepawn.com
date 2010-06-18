@@ -1,0 +1,121 @@
+Transactions in Memory
+
+transactions-in-memory
+
+2008/09/01
+
+I recently re-read Chapter 24 of <a href="http://www.amazon.com/Beautiful-Code-Leading-Programmers-Practice/dp/0596510047">Beautiful Code</a>, titled <a href="http://research.microsoft.com/~simonpj/Papers/stm/beautiful.pdf">Beautiful Concurrency (PDF)</a>. It's very well written, you won't regret reading it. In it, <a href="http://research.microsoft.com/~simonpj/">Simon Peyton Jones</a> makes the case for Software Transactional Memory vs. explicit locking by the programmer.
+MARKER
+
+Getting locking right in a non-trivial system is pretty hard. SPJ's list of pitfalls is almost exhaustive:
+<ol>
+<li>Taking too few locks</li>
+<li>Taking too many locks</li>
+<li>Taking the wrong locks</li>
+<li>Taking the locks in the wrong order</li>
+<li>Freeing locks on error</li>
+</ol>
+
+<img src="/images/locks.jpg" />
+
+I would a zeroth point: <strong>figuring out what to lock.</strong> This precedes everything else you do with locks.
+
+Software Transactional Memory is, per <a href="http://en.wikipedia.org/wiki/Software_transactional_memory">Wikipedia</a>:
+
+<blockquote>
+In computer science, software transactional memory (STM) is a concurrency control mechanism analogous to database transactions for controlling access to shared memory in concurrent computing. It functions as an alternative to lock-based synchronization. A transaction in this context is a piece of code that executes a series of reads and writes to shared memory. These reads and writes logically occur at a single instant in time; intermediate states are not visible to other (successful) transactions.
+</blockquote>
+
+An example is worth a thousand words:
+<pre>
+// change a1 and a2 such that a1 + a2 = const
+// like transferring money between bank accounts
+&nbsp;
+// lock-based version
+lock l;
+double a1, a2;
+void transfer(double amount)
+{
+&nbsp;lock(l);
+&nbsp;a1 = a1 - amount; // suppose this is atomic
+&nbsp;a2 = a2 + amount;
+&nbsp;unlock(l);
+&nbsp;}
+}
+&nbsp;
+// STM
+stm_double a1, a2;
+void transfer(double amount)
+{
+&nbsp;transaction_start(); // like 'atomic' in Haskell
+&nbsp;&nbsp;a1 = a1 - amount;
+&nbsp;&nbsp;a2 = a2 + amount;
+&nbsp;transaction_end();
+}
+</pre>
+
+No big difference. But wait, what if you have several a's, say several accounts. You want <span class="code">transfer(a1, a2, amount)</span>. With locks, your code just got a whole lot more complicated. With STM, it's a free lunch.
+
+STM solves most of the problems listed by SPJ, but cannot solve the zeroth problem: you still have to figure out what the lockspots are, declare them to be transactional variables, and then guard them with transactions. But with STMs, <em>all</em> you have to do is guard with, you don't have to worry about locking policy.
+
+But remember, there are no silver bullets. There are two problems with STM:
+
+<strong>1. No transactional I/O.</strong> M stands for Memory, meaning that it can only guard memory areas, but not I/O. On some systems, like Haskell, the STM library does not even let you mix STM and I/O operations, so you can't have I/O operations inside <span class="code">atomically { }</span> (it won't compile). The reason is, you don't want to execute the I/O code twice in case the transaction has to be re-run.
+
+<strong>2. Library overhead.</strong> You just went from a few instructions to write a variable to including a whole library that manages reading and writing variables for you. If the code you are writing is not high-performance, this is probably acceptable. I'd consider using STM when working in Java, .NET or Python --- here, raw speed is not possible anyway, so trading some more CPU time for simpler and less buggy code is acceptable.
+
+<strong>How much speed are you sacrifying when using STM?</strong> To find out, I downloaded and compiled <a href="http://tinystm.org/tinystm">TinySTM</a>, a C library implementing the basic STM primitives like <span class="code">stm_start()</span> and <span class="code">stm_commit()</span>.
+
+It turns out that the transaction manager's design matters a whole lot. Some good papers are:
+<ul>
+<li><a href="http://research.ihost.com/ppopp08/presentations/felber.ppt">Dynamic Performance Tuning of Word-Based Software Transactional Memory - a presentation by the TinySTM authors</a></li>
+<li><a href="http://www.lib.ncsu.edu/theses/available/etd-06182007-222608/unrestricted/etd.pdf">Performance Comparison of Software Transactional Memory Implementations - Riya Kariath's M.Sc. Thesis</a></li>
+</ul>
+
+To test performance I created the simplest program possible (<a href="/wp-content/code/perf.c">source code</a>), with just one <span class="code">long integer</span> called <span class="code">counter</span>, <span class="code">NTHREADS</span> many threads each wanting to increment <span class="code">counter NLOOPS</span> many times. (This test is by no means representative, but it's something. You have to see what happens for your real workload.)
+
+For comparison, I measured
+<ol>
+<li>a naive, non-locking implementation which is not correct, ie. the final value of <span class="code">counter</span> is not <span class="code">NTHREADS * NLOOPS</span>.</li>
+<li>pthread mutex based implementation with one lock for <span class="code">counter</span></li>
+<li>TinySTM based implementation with transactions using <strong>Write-back + Encounter Time Locking (ETL)</strong></li>
+<li>TinySTM based implementation with transactions using <strong>Write-back + Commit Time Locking (CTL)</strong></li>
+</ol>
+
+The results are in milliseconds, first number is for naive, second for lock-based, third for STM-based implementation:
+
+<table border="1">
+<tr style="background-color:#cccccc;">
+<td></td>
+<td>NTHREADS = 10</td>
+<td>NTHREADS = 100</td>
+<td>NTHREADS = 1000</td>
+</tr>
+<td style="background-color:#cccccc;">NLOOPS = 10</td>
+<td>0 | 0 | 40 | 10</td>
+<td>7 | 7 | 1440 | 18</td>
+<td>112 | 153 | 1148071 | 147</td>
+<tr>
+</tr>
+<td style="background-color:#cccccc;">NLOOPS = 100</td>
+<td>0 | 6 | 54 | 8</td>
+<td>6 | 100 | 2065 | 20</td>
+<td>93 | 1037 | 1204106 | 875</td>
+<tr>
+<td style="background-color:#cccccc;">NLOOPS = 1000</td>
+<td>0 | 95 | 54 | 11</td>
+<td>6 | 898 | 1200 | 40</td>
+<td>99 | 9937 | 566714 | 379</td>
+</tr>
+</table>
+
+Note that I didn't repeat the experiment many times and take an average value, but the trend is quite clear (and repeatable). <strong>As you get more and more threads competing for the same resource, the STM ETL implementation becomes unfeasable (third number), while the STM CTL implementation (fourth number) beats my locking code (second number).</strong>
+
+What's the difference between the two STM architectures? With ETL, as soon as the transaction reads a variable, that variable is locked and not released until the transaction finishes. With CTL, the variables are not locked until the transaction attempts to commit. The problem with ETL is that whenever a thread acquires a lock on counter, and all the other threads start aborting and re-executing, hogging down the CPU. It's not clear why the CTL version is faster than ETL, I assume it's because threads get lots of timeslices during the execution of one one loop, so the ETL version aborts many more times than the CTL version. Why is it faster then the pthread version? TinySTM uses <a href="http://www.hpl.hp.com/research/linux/atomic_ops/">atomic_ops</a>, which contains machine-specific optimizations, which the pthread library probably does not.
+
+The lesson is:
+<ul>
+<li>STM can be very slow depending on your workload and STM library</li>
+<li>STM can be very fast depending on your workload and STM library</li>
+<li>Look into <a href="http://www.hpl.hp.com/research/linux/atomic_ops/">atomic_ops</a> (or find bottleneck is pthread code)</li>
+</ul>

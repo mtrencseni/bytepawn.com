@@ -1,0 +1,52 @@
+Scalable Web Architectures and Application State
+
+scalable-web-architectures-and-application-state
+
+2009/06/17
+
+<i>In this article we follow a hypothetical programmer, Damian, on his quest to make his web application scalable.</i>
+MARKER
+
+In the early 2000s Damian built a website for fellow gamers interested in the magic game dungeons and dragons. The site was simple, as it listed various properties of magic items and featured a messageboard. Damian used the <a href="http://en.wikipedia.org/wiki/LAMP_(software_bundle)">LAMP stack</a>: data about items was stored in Mysql, and various PHP scripts let the visitors of the site view items and statistics.
+
+Now fast forward to 2009. Damian's site has evolved to a web game for playing dungeons online, in your browser. Damian is still using LAMP. Data about types of games (including parameters such as monster strength), user data (including status information), and data about active games (including players, the monters's health) are still stored in Mysql. It's all fine until there are only a few games in session and only a couple hundred players, but as the site gets popular, Damian's server is starting to see high load numbers.
+
+Damian is experiencing scalability issues --- his current setup cannot handle tens of thousands of users. He searches the web and buys some books about Mysql, and starts <i>optimizing</i>:
+<ul>
+<li>tweaking Mysql parameters</li>
+<li>tweaking Apache parameters</li>
+<li>moving to a dedicated server</li>
+<li>buying more RAM</li>
+<li>denormalizing tables</li>
+<li>optimizing SQL queries</li>
+<li>optimizing indexes</li>
+</ul>
+
+Each of these tweaks buys him more time, but the users keep on coming, and the load factor keeps creeping up. Damian reads even more articles, buy some more books, and gets his hands dirty <i>scaling</i> his system:
+<ul>
+<li>discovers <a href="http://www.danga.com/memcached/">Memcached</a>, and starts caching some SQL queries</li>
+<li>discovers Lighttpd, uses it to serve static content like images</li>
+<li>buys a second dedicated server to spread Mysql reads</li>
+<li>buys more RAM for the second server</li>
+<li>...</li>
+</ul>
+
+As even more users register, the load is becoming unbearable. Damian discovers <a href="http://aws.amazon.com/">Amazon EC2</a>...
+
+Hold on a minute. What's going on here? Let's think for a second.
+
+Most of Damian's problems are related to Mysql. Suppose we were not living the glorious Web2.0 days and you were writing what's basically an application server. Would you store <i>everything</i>, including state information in a database? No, of course not. You would store some information in the database, read it out when the application server launches, perform computation for the clients, and write data meant to be persistent back to the database. This is what Damien really needs. Damian needs a fast racecar, but his initial design resulted in a bike, and now he's frantically trying to turn the bike into a car by welding two bikes together and putting rocket boosters in the back.
+
+<center><img width="500" src="/images/carbike.jpg" /></center>
+<br/>
+<center><img width="500" src="/images/enzo.jpg" /></center>
+
+Damian does not need fundamentally new software. He does not need a custom application server, nor could you convince him to write one. What he needs is the insight to identify state, cached data and persistent data in his application. Application state goes into an in-memory key-value store like <a href="http://tokyocabinet.sourceforge.net/tyrantdoc/">Tokyo Tyrant</a>. Cache data goes into <a href="http://www.danga.com/memcached/">Memcached</a>. Persistent data goes into a database. Note that the seperation of code and application state may be beneficial later, because it allows you to scale easily by adding new memory servers. Mysql will probably need to be left behind for a persistent key-value store that is more easily distributed and replicated. As co-founder of <a href="http://scalien.com">Scalien</a> and one of the developers of our <a href="http://scalien.com/keyspace">Keyspace</a> replicated key-value store, I can only recommend it. It's devilishly fast for consistently replicated writes.
+
+When the server launches, before client requests are served, a script initializes the system by loading the appropriate state data into memory. Client requests are served primarily by using state information (global and per-user, per-game, per-session, etc.), and sometimes persistent data is written back to disk. Data that isn't absolutely essential, like an in-game chat transcript are written to disk asynchronously in the background.
+
+Let's call this the Code-State-Cache-Data (CSCD) pattern. What Damian originally had was a Code-Data (CD) pattern, and later he optimized to get a Code-Cache-Data (CCD) pattern. It is my opinion that writing applications in the CSCD pattern is not substantially harder than the standard CD or CCD pattern. But it is a <i>smarter</i> architecture because it identifies data for what it is: state, cache and persistent data. It is a <i>faster</i> architecture, as more clients can be served with a single server. Additionally, it is a more <i>scalable</i> architecture, especially if Mysql is replaced with a distributed key-value store. Finally, it is <i>pragmatic</i>, because it uses existing components and existing practices only change slightly.
+
+Let's keep in mind that there is no silver bullet. With a CSCD pattern, Damian will still have to do optimizations like tweaking Apache or buying more RAM, but he is optimizing to make a smart architecture run fast, instead of caching the hell out of a slow architecture.
+
+What I'm saying here isn't anything radical or even new, but most web application are still written in the LAMP+CD pattern. Hopefully this article will lead to more scalable designs where code, state, cache and data are seperated to yield better performance.

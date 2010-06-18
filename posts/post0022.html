@@ -1,0 +1,23 @@
+SSD Reading List
+
+ssd-reading-list
+
+2009/10/18
+
+As part of the preparatory work of replacing BerkeleyDB with our own storage engine in <a href="http://scalien.com">Keyspace</a>, I've been looking at papers about SSD technology. It looks like SSDs will replace spinning disks in a couple of years, and in anticipation of this we're looking into the possibility of optimizing the engine for its characteristics: cheap random reads, potentially expensive writes because of erases behind complex on-disk logic called the Flash Tranlation Layer (FTL). Here are some good resources I found.
+MARKER
+
+<ol>
+<li><a href="http://www.anandtech.com/printarticle.aspx?i=3531">Anandtech's overview (must read)</a></li>
+<li><a href="http://www.cs.arizona.edu/~bkmoon/papers/dasfaa09.pdf">In-Page Logging B-Tree for Flash Memory [pdf]</a></li>
+<li><a href="http://db-event.jpn.org/idb2008/invited_talks/iDB3a_Lee.pdf">Overview slides (good) [ppt]</a></li>
+<li><a href="http://arxiv.org/pdf/0909.1780">uFLIP: Understanding Flash IO Patterns (must read, CIDR best paper) [pdf]</a></li>
+<li><a href="http://www.comp.hkbu.edu.hk/~pgday/2009/10th_papers/yli.pdf">Optimize write performance for DBMS on Solid State Drive [pdf]</a></li>
+<li><a href="http://www.cs.umass.edu/~dganesan/papers/VLDB09-LATree.pdf">Lazy-Adaptive Tree: An Optimized Index Structure for Flash Devices (VLDB) [pdf]</a></li>
+<li><a href="http://www.cse.ust.hk/catalac/users/yinanli/fdtree/fdtree_pvldb.pdf">Tree Indexing on Solid State Drives (VLDB) [pdf]</a></li>
+<li><a href="http://lwn.net/Articles/353411/">Log-structured file systems: There's one in every SSD</a></li>
+</ol>
+
+Two notes: First, the uFLIP paper is particularly good. Second, it seems that the In-Page Logging (IPL) paper assumes direct control of read/write/erase cycles of the SSD, which is not realistic for off-the-shelf consumer drives like the <a href="http://www.google.com/search?hl=en&q=intel%20x25m&aq=f&oq=&aqi=">Intel X25-M</a>, which include a complex FTL.
+
+Finally, while putting together this list I found a much <a href="http://staff.ustc.edu.cn/~jpq/flash.html">longer list of SSD papers here</a>, also worth taking a look.

@@ -1,0 +1,59 @@
+Book Recommendation: C Interfaces and Implementations
+
+book-recommendation-c-interfaces-and-implementations
+
+2008/07/21
+
+by David R. Hanson
+544 pages, Addison-Wesley Professional
+<a href="http://www.amazon.com/Interfaces-Implementations-Techniques-Addison-Wesley-Professional/dp/0201498413">Amazon homepage</a> - <a href="http://www.cs.princeton.edu/software/cii/">Official homepage</a>
+
+<img src="/images/cii.png" />
+MARKER
+
+<strong>Table of contents:</strong><br/>
+1. Introduction 2. Interfaces and Implementations<br/>
+3. Atoms 4. Exceptions and Assertions<br/>
+5. Memory Management 6. More Memory Management<br/>
+7. Lists 8. Tables 9. Sets 10. Dynamic Arrays 11. Sequences 12. Rings 13. Bit Vectors<br/>
+14. Formatting 15. Low-Level Strings 16. High-Level Strings<br/>
+17. Extended-Precision Arithmetic 18. Arbitrary-Precision Arithmetic 19. Multiple-Precision Arithmetic<br/>
+20. Threads
+
+<strong>Short version.</strong> This book is highly recommended for the padawan C programmer on his quest to become a master. For the experienced C programmer this will be an easy and enjoyable read with one or two tricks or useful idioms per chapter. It is often recommended to read other people's code, but reading an exceptionally well-written book about good code is much more fun. 
+
+The book is written in the literate programming style, meaning that the book is interspersed with code fragments. Although it requires page flipping at times and is odd at first, it is the best technique for presenting code with the accompanying description I have come across. The worst aspect here is the author's use of the += meta-operator for appending code to a previous fragment, which almost always requires page-flipping.
+
+As the book's title suggests the most basic pattern put forth is the seperation of interface into a .h file and implementation into .c files. Beginner programmers will first learn the
+
+<pre>
+#ifndef FOO_H
+#define FOO_H
+... interface for FOO
+#endif
+</pre>
+
+pattern used in C programs to avoid duplicate <span class="code">#include</span>s.
+
+The objects discussed in the book are every programmer's standard tools such as:
+
+<ul>
+<li>memory managers</li>
+<li>lists, tables, sets, rings</li>
+<li>atoms, strings</li>
+<li>threads</li>
+</ul>
+
+Fortunately most programmers don't need to reimplement these and instead use standard libraries. In the case of C++ the Standard Template Library (STL) includes much of the functionality described by Hanson. Still, real programmers know what goes on under the hood of their libraries, so looking at the author's implementations is highly recommended. Since programmers working in high-performance, systems and database programming have to (re)implement custom versions of these modules, looking at Hanson's code is easily worth it for them.
+
+C Interfaces and Implementations is one of the few books where the <strong>Further Reading</strong> and <strong>Exercises</strong> sections at the end of each chapter are worth reading. Unlike academic style enumerated bibliographies here Hanson gives a short one sentence overview about the referenced papers and books. The Exercises point to possible extensions and modifications of the modules described in each chapter. Also, if you end up using Hanson's code in your projects the <strong>Interface Summary</strong> at the end of the book will come in handy.
+
+Experienced programmers will find some oddities to disagree with. Here I will mention two I have come across.
+
+<strong>Typedef'd data types.</strong> Throughout the interfaces Hanson uses the convention that object type names are <span class="code">typedef</span>'d to T, so instead of writing out <span class="code">append(List* l, void* obj)</span> he would write <span class="code">append(T l, void* obj)</span>. In this case, the * would be in the <span class="code">typedef</span> making the function declarations hard to interpret. This trick seems counterproductive, more is lost in readability than gained by typing less characters.
+
+<strong>Exceptions.</strong> One of the first modules described is an exception-handling mechanism implemented with the aid of the C preprocessor, in other words macro magic. If C is a motorcycle and C++ is a car, then this is like welding two motorcycles together to get a car. If I couldn't live without exceptions, I'd just use C++.
+
+These issues aside, the book is highly recommended for the beginning C programmer, as it will teach through repeated use the best-practice idioms of C programming style. These patterns are demonstrated using common objects such as lists and sets, so beginners will gain additional insight from their inner workings. For experienced programmers the book will mostly be a fun read. However, advanced concepts such as the implementation of green threads will most likely be new material even for the seasoned programmer.
+
+Still not convinced? Visit the <a href="http://www.cs.princeton.edu/software/cii/">book's official homepage</a> to download a sample chapter and all the C source code.

@@ -1,0 +1,34 @@
+Data-based Recommendations
+
+data-based-recommendations
+
+2008/08/04
+
+Social recommendation sites like <a href="http://www.slashdot.org">Slashdot</a>, <a href="http://www.digg.com">Digg</a> or the smaller <a href="http://news.ycombinator.com">Hacker News</a> are used by millions to find interesting content on the web. Some are supposed to be <a href="http://www.techcrunch.com/2008/07/22/google-in-final-negotiations-to-acquire-digg-for-around-200-million/">worth a lot of dollars</a>. Although these sites are <strong>useful in the sense of being better than nothing, the signal to noise ratio is still very low</strong>. Hacker News' feed features roughly 75 posts a day of which maybe 5-10% are interesting to me. In the long run, scanning through 75 posts a day to find 8 mildly interesting ones is not very good. Granted, for discovering "breaking news" social recommendation sites are ideal --- but in reality, most posted links are not new, they're just supposed to be interesting. 
+MARKER
+
+One alternative to social recommendations is data-based recommendations, where some site or company records my habits and points me to interesting stuff. The champion here is without a doubt <a href="http://www.amazon.com">Amazon</a>. Their recomendation engine simply rocks:
+
+<img src="/images/amazon1.jpg" />
+
+Amazon makes recommendations based on my browsing history, my shopping history, other user's browsing history, other user's shopping history, the category tree of their books or the assumption that if I liked something from the author I might also like his other books. Here's a <a href="http://agents.csie.ntu.edu.tw/~yjhsu/courses/u2010/papers/Amazon%20Recommendations.pdf">short PDF</a> describing their system in greater detail:
+
+<blockquote>
+<strong>Summary:</strong> Recommendation algorithms are best known for their use on e-commerce Web sites, where they use input about a customer's interests to generate a list of recommended items. Many applications use only the items that customers purchase and explicitly rate to represent their interests, but they can also use other attributes, including items viewed, demographic data, subject interests, and favorite artists. At Amazon.com, we use recommendation algorithms to personalize the online store for each customer. The store radically changes based on customer interests, showing programming titles to a software engineer and baby toys to a new mother. There are three common approaches to solving the recommendation problem: traditional collaborative filtering, cluster models, and search-based methods. Here, we compare these methods with our algorithm, which we call item-to-item collaborative filtering. Unlike traditional collaborative filtering, our algorithm's online computation scales independently of the number of customers and number of items in the product catalog. Our algorithm produces recommendations in real-time, scales to massive data sets, and generates high quality recommendations.
+</blockquote>
+
+In the case of Amazon, I don't have to buy the recommendation --- being on-topic is enough to get me to click on the book, kicking off a browsing session which may result in a purchase (or pushing books to my shopping list).
+
+<strong>The real question is, why is Amazon the only site that gets it right?</strong> 
+
+I can name two sites that I visit many times a day where data-based recommendations would rock:
+
+<strong>Internet Movie Database</strong>. I use <a href="http://www.imdb.com">IMDb</a> all the time for checking movies before watching them and to see what other people thought after I saw a movie. IMDb should have massive amounts of data about my movie habits, yet their recommendation engine sucks. (Note that IMDb is owned by Amazon, so this is just weird.) For example, I open the page for the movie <a href="http://www.imdb.com/title/tt0478134/">In the Valley of Elah</a>, and at the bottom of the page I see 5 recommendations. These are not personal recommendations, my preferences / history have not been taken into account. It's simply a list of movies deemed similar to the movie I'm viewing. (You can verify this by logging off and visiting the page again.) And they suck too. They recommend <a href="http://www.imdb.com/title/tt0462499/">Rambo</a>, which is pretty pointless since everybody's seen Rambo.
+
+<strong>Google Reader</strong>. Power-users use <a href="http://reader.google.com">Google Reader</a> to avoid having to visit all the blogs they read. I'm always looking for blogs that might be interesting to read. Google has a large database of data telling it what feeds users subscribe to and what articles users click. It should be possible to make good recommendations based on this data, not to mention all the other data Google has on us. Still, Google Reader's recommendations suck. They don't even attempt to recommend individual articles, only entire feeds / blogs.
+
+For Amazon recommendations are a core of part of their business. Unfortunately for users, IMDb and Google Reader probably don't see a good way to monetize such a feature, hence the lack of effort.
+
+The <a href="http://www.netflixprize.com">NetFlix challenge</a> was a great way to draw attention to recommendation algorithms, but I'm not aware of any startups coming out of it. This should be a call-to-arms for entrepeneurs to figure out a way to make money off recommendations. The task is a difficult one, since --- apart from finding a viable business plan --- you also face the classic <a href="http://en.wikipedia.org/wiki/Chicken-and-egg_problem">chicken-or-the-egg problem</a>: <strong>you need a lot of data to make good recommendations.</strong>
+
+<img src="/images/chicken.gif" />

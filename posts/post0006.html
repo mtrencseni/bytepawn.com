@@ -1,0 +1,54 @@
+P2P vs. the Cloud
+
+p2p-vs-the-cloud
+
+2008/08/16
+
+Marco Kotrotsos in a recent article claims that the cloud has failed, and instead <a href="http://struct3.com/has-the-cloud-failed-before-prime-time/">advocates a P2P cloud architecture</a>:
+
+<blockquote>
+I am referring to the slew of outages the last day’s and weeks of some high profile infrastructures like Amazon S3 and Google. I always thought Googles infrastructure was untouchable. But it seemed that I had woken up to a different world last week. When I saw tweets and messages going around with "Gmail is down".
+<br/>...<br/>
+P2P Cloud computing in general will be the future of infrastructure.
+</blockquote>
+MARKER
+
+At first, this sounds like a good idea. At least it did in 2000, when it was called <a href="http://en.wikipedia.org/wiki/Grid_computing">grid computing</a>. Unfortunately, it's not.
+
+<img src="/images/small-clouds.jpg" />
+
+<strong>It's been tried; it failed.</strong> This <a href="http://www.nature.com/nature/webmatters/grid/grid.html">Nature article</a> from 2000 is optimistic:
+
+<blockquote>
+Internet computing and Grid technologies promise to change the way we tackle complex problems. They will enable large-scale aggregation and sharing of computational, data and other resources across institutional boundaries. And harnessing these new technologies effectively will transform scientific disciplines ranging from high-energy physics to the life sciences.
+</blockquote>
+
+At the end of the article is a list of companies trying to commercialize the concept: Entropia, United Devices, Parabon and Popular Power. Guess what --- most of them are no longer around. The only one that is is <a href="http://www.parabon.com">Parabon</a>, which is hosting the <a href="http://www.computeagainstcancer.org/">ComputeAgainstCancer</a> project. Looking at their site, I get the feeling that their customers are mostly universities and other government agencies
+
+<strong>Incentive and economics.</strong> People download <a href="http://setiathome.berkeley.edu/">SETI@Home</a> out of philantrophy and because they think it's cool. You can't count on people to host your distributed app platform on their computer for philantrophy, so you'd have to pay them. Unfortunately, the amount of money their computational power is worth is so low that it wouldn't work. Would you bother to download and run some a program in the background for ~$5 / month? Also, you can't put your computer to sleep from now on. E.g. in the case of Parabon, the company mentioned above, you can't download and run their "Frontier Compute Engine", which is their distributed node software. The reason probably is that nobody wants to, anyway. So if a company wants to use Parabon's system, they either run their own nodes, or buy the capacity from Parabon's marketplace.  
+
+<strong>Latency.</strong> Google serves search requests in 10-100 milliseconds, wherever you are. Can you do that with P2P? Remember, <a href="http://www.stuartcheshire.org/rants/Latency.html">latency vs. bandwidth</a>:
+
+<blockquote>
+Years ago David Cheriton at Stanford taught me something that seemed very obvious at the time -- that if you have a network link with low bandwidth then it's an easy matter of putting several in parallel to make a combined link with higher bandwidth, but if you have a network link with bad latency then no amount of money can turn any number of them into a link with good latency.
+</blockquote>
+
+<strong>It's not attacking the right problems.</strong> I'm not sure about the Gmail outage, but <a href="http://developer.amazonwebservices.com/connect/message.jspa?messageID=79978#79978">Amazon posted a short explanation of their problem</a>:
+
+<blockquote>
+Early this morning, at 3:30am PST, we started seeing elevated levels of authenticated requests from multiple users in one of our locations.  While we carefully monitor our overall request volumes and these remained within normal ranges, we had not been monitoring the proportion of authenticated requests.  Importantly, these cryptographic requests consume more resources per call than other request types.
+<br/><br/>
+Shortly before 4:00am PST, we began to see several other users significantly increase their volume of authenticated calls.  The last of these pushed the authentication service over its maximum capacity before we could complete putting new capacity in place.  In addition to processing authenticated requests, the authentication service also performs account validation on every request Amazon S3 handles.  This caused Amazon S3 to be unable to process any requests in that location, beginning at 4:31am PST.  By 6:48am PST, we had moved enough capacity online to resolve the issue.
+</blockquote>
+
+Even in a P2P architecture, I imagine that the authentication service would be located in the grid provider's own network, so P2P wouldn't make a difference. Also note that today's clouds (Google, Amazon, etc.) are explicitly designed to be unaffected by disk, machine or switch failure. So the only way to bring them down is either through an allocation mismatch (human error?), which is basically what happened with Amazon, a software bug / protocol bug (human error), some extreme power outage that outlasts the local generators (extremely unlikely?), or some kind of <a href="http://en.wikipedia.org/wiki/Denial-of-service_attack">DDoS attack</a> against the entire data center. Even with a P2P architecture, you still have to have some components running in the grid provider's local datacenter, so a DDoS against that would still bring the whole thing down. I think that the Gmail and Amazon problems were not really scalability problems, so P2P wouldn't have helped.
+
+To close the article, I'll include one last quote from <a href="http://en.wikipedia.org/wiki/Jim_Gray_(computer_scientist)">Jim Gray's</a> short <a href="http://research.microsoft.com/research/pubs/view.aspx?tr_id=655">Distributed Computing Economics (2003) paper</a> (emphasis mine):
+
+<blockquote>
+Computing economics are changing. Today there is rough price parity between (1) one database access, (2) ten bytes of network traffic, (3) 100,000 instructions, (4) 10 bytes of disk storage, and (5) a megabyte of disk bandwidth. This has implications for how one structures Internet-scale distributed computing: <strong>one puts computing as close to the data as possible in order to avoid expensive network traffic.</strong>
+<br/>...<br/>
+<strong>The ideal mobile task is stateless (no database or database access), has a tiny network input and output, and has huge computational demand.</strong> For example, a cryptographic search problem: given the encrypted text, the clear text, and a key search range. This kind of problem has a few kilobytes input and output, is stateless, and can compute for days. Computing zeros of the zeta function is a good example.  Monte Carlo simulation for portfolio risk analysis is another good example. And of course, SETI@Home is a good example: it computes for 12 hours on half a megabyte of input.
+<br/>...<br/>
+<strong>Most web and data processing applications are network or state intensive and are not economically viable as mobile applications.</strong> An FTP server, an HTML web server, a mail server, and Online Transaction Processing (OLTP) server represent a spectrum of services with increasing database state and data access. A 100MB FTP task costs 10 cents, and is 99% network cost. An HTML web access costs 10 microdollars and is 88% network cost. A Hotmail transaction costs 10 microdollars and is more cpu intensive so that networking and cpu are approximately balanced. None of these applications fits the cpu-intensive stateless requirement.
+</blockquote>

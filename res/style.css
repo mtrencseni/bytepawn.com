@@ -1,0 +1,126 @@
+body {
+	background-color: #FFE4C4;
+	margin: 30px;
+	text-align: center;
+}
+
+img {
+	border: 0px;
+}
+
+#content {
+	width: 900px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+}
+
+#topbar {
+	background-color: #d2b48c;
+	padding: 15px;
+}
+
+#topbar a {
+	color: #8b4513;
+}
+
+#blogtitle {
+	font-family: Century Gothic, Corbel, Eras Light ITC;
+	font-size: 46px;
+}
+
+#blogtitle a {
+	color: black;
+	text-decoration: none;
+}
+
+#slogan {
+        font-family: Century Gothic, Corbel, Eras Light ITC;
+        font-size: 22px;
+	padding-left: 35px;
+}
+
+#topbar ul {
+	display: block;
+	padding-left: 0px;
+}
+
+#topbar li {
+	display: inline;
+	padding-right: 40px;
+	font-size: 24px;
+}
+
+#post {
+	padding: 15px;
+}
+
+#index {
+	padding: 45px;
+}
+
+h1 {
+	font-size: 34px;
+}
+
+h2 {
+	font-size: 24px;
+}
+
+blockquote {
+	font-style: italic;
+	padding-left: 30px;
+}
+
+p blockquote {
+	font-style: italic;
+}
+
+pre {
+	display: block;
+	padding-left: 30px;
+}
+
+span.code {
+	font-family: courier;
+}
+
+#index ul {
+	display: inline;
+	line-height: 150%;
+	list-style-type: square;
+	list-style-image: none;
+}
+
+a {
+	color: #8b4513;
+}
+
+#timestamp {
+	padding-top: 30px;
+	font-size: 12px;
+	color: #808080;
+}
+
+#disqus_thread {
+	padding: 20px;
+}
+
+#sig {
+	color: #808080;
+}
+
+.title {
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.snip {
+	padding: 10px;
+	padding-left:20px;
+}
+
+.sniplink {
+	font-size: smaller;
+	margin-left: 20px;
+}

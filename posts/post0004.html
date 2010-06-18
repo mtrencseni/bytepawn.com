@@ -1,0 +1,168 @@
+Beautiful Migration
+
+beautiful-migration
+
+2008/07/28
+
+<img src="/images/beautiful-code.gif" />
+
+<em>O'Reilly's <a href="http://www.amazon.com/Beautiful-Code-Leading-Programmers-Practice/dp/0596510047/ref=pd_bbs_sr_1?ie=UTF8&s=books&qid=1217183383&sr=8-1">Beautiful Code</a> is an excellent book with 33 short, bite-sized chapters about <strong>interesting code</strong>. After I read the book I thought it'd be a good retrospective exercise to <strong>write your own Chapter 34</strong> to share insights with other programmers. So here it goes:</em>
+MARKER
+
+Some time ago I worked at a fairly large one-product software company. Roughly every 2 years they would come out with a new version of their software (let's call it Software X) to keep the cash flowing in. On the side, the company also sold customized versions of the software to the far-east, where it's customary for large companies to request custom versions of software tailored to their needs. I was part of the Customization Team.
+
+As a matter of company policy, the changes the Customization Team produced never made it back to the base source tree of Software X. To put it in perspective, each customized version contained roughly 1% changes if measured in lines of code. There were several customized versions, on the order of 10. The customized version shared some customized features, so there was overlap in the code. As the Base Team working on Software X created new stable builds, we had to obtain a copy of their new source tree and merge in our custom code. We had to do this every time a major milestone was reached on Software X, roughly every 3-6 months. This is what we called migration: take the old customized version, call it Custom-old, the new base version, call it Base-new, and produce the new customized version Custom-new.
+
+Unfortunately, our changes were not only in source code: we had a custom build system built on top of theirs, so we could build all our custom versions from the same source tree. This involved changing the source tree at certain points in a systematic way. For example, we had to keep files in different places, such as keeping a copy of all the original resource files in one place, and product specific resource files for each custom version (such as the splash screen), and our build system would manage these before calling the base build system. To sum it up, we not only changed source code, but moved files around, duplicated some, created some, etc.
+
+<strong>Human Labor.</strong> Before the group started using a tool to aid migraiton, a human (one of the programmers) would manually migrate by copying files and directories, set up our custom directory structure and merge the source and resource files.
+
+<strong>Imitation.</strong> The programmer given this problem before me implemented an <a href="http://en.wikipedia.org/wiki/Imperative_programming">imperative</a> migrator in C++ which mimicked what previously the human would have done: copy this, rename that, merge these files, etc. This is what it looked like:
+
+<pre>
+CopyFiles(from1, to1);
+...
+std::vector<string> exceptions;
+exceptions.push_back(filename1);
+exceptions.push_back(filename2);
+...
+CopyFiles(from2, to2, exceptions);
+</pre>
+
+Obviously, C++ is not the best language for such a tool. However, this was not the core problem with this implementation, had he used Perl I would still be writing this article. The problem was that the source tree was highly unstable from version to version, in the sense that files appeared, disappeared or moved around the directory tree. The tool had to be patched often, and even when we considered running it a success after manually checking and verifying the migration we always had to fix the source tree up by hand to get a working version.
+
+It was obvious that the imperative program telling the computer to move around files and then present certain files for merging to the user was too complicated because the source tree was too complex (over a gigabyte). When given the chance, I convinced my manager that it had to be replaced.
+
+<strong>Evolution.</strong> My first improvement over the original was evolutionary. In the last step of migration, the tool would present all source files that we modified for manual merging. This meant sitting there for hours and clicking CTRL + right-arrow in Araxis Merge to bring over our modifications. The idea here was simple: if given the base source file BaseFile, which we modified to get CustomFile-old, the only time it was neccesary to bring up a merge window is if BaseFile actually changed in the new base version, eg. if BaseFile-old != BaseFile-new. In terms of pseudo-code:
+
+<pre>
+if (BaseFile-new == BaseFile-old)
+&nbsp;&nbsp;CustomFile-new := CustomFile-old;
+else
+&nbsp;&nbsp;CustomFile-new := Merge(..);
+</pre>
+
+This is, of course, trivial to anyone who has ever used a source control system like cvs. (In fact, source control systems are even smarter since they detect where in a file changes occurred.) In terms of our migration process, this involved bringing the old base version Base-old into the game. This improvement reduced the number of diffs presented to the human migrator by 90%, saving hours of work on each migration. Unfortuantely, the process was still highly unstable.
+
+<strong>Revolution.</strong> After convincing my manager that the migration tool could be improved, I set out to design my version. I was guided by two main design principles:
+<ul>
+<li>design special-purpose meta-languages for your problem domain</li>
+<li>use <a href="http://en.wikipedia.org/wiki/Declarative_programming">declarative</a> syntax whenever possible</li>
+The first point is best illustrated by John Carmack’s <a href="http://en.wikipedia.org/wiki/QuakeC">QuakeC</a>, an interpreted language used to script the Quake engine. My knowledge of declarative languages is due to several semesters of <a href="http://en.wikipedia.org/wiki/Prolog">Prolog</a> at University.
+</ul>
+
+The beautiful idea was to think in terms of migration rules instead of concrete migration operations such as copying or merging files. The rules are declarative, and make up the meta-language of the first point.
+
+The migrator’s central object is a <strong>multi-file iterator</strong>. (I cannot find a case of someone else doing this, so I may have invented something?). The migrator is told to iterate n directories in parallel by matching filenames. On each iteration, it calls the user supplied ruleset, which tells it how to create the file in the resulting source tree.
+
+Suppose the following three directories (colors denote different file contents):
+
+<table border="1" style="padding:4px;">
+<thead style="font-weight:bold;">
+<td>Directory1</td>
+<td>Directory2</td>
+<td>Directory3</td>
+</thead>
+<tr>
+<td>Apple.txt</td>
+<td><span style="color:blue;">Apple.txt<span></td>
+<td><em>Null</em></td>
+</tr>
+<tr>
+<td><em>Null</em></td>
+<td>Banana.txt</td>
+<td>Banana.txt</td>
+</tr>
+<tr>
+<td>Orange.txt</td>
+<td>Orange.txt</td>
+<td><span style="color:green;">Orange.txt</span></td>
+</tr>
+<tr>
+<td>Peach.txt</td>
+<td><em>Null</em></td>
+<td><em>Null</em></td>
+</tr>
+</table>
+
+In the example above, we are iterating three directories is parallel. Directory1 contains three files, Apple.txt, Orange.txt and Peach.txt, Directory2 contains three files, Apple.txt, Banana.txt and Orange.txt, Directory3 contains two files, Banana.txt and Orange.txt. The iterator would return four times. The first time for Apple.txt, which exists in Directory1 and 2 but not in 3, the second time for Banana.txt, and so on. Every time the iterator returns, the user supplied ruleset is called. The return value of the rule determines how the given file (Apple.txt, Banana.txt, Orange.txt, Peach.txt) is created in the target directory. Suppose the ruleset looks like this:
+
+<pre>
+// rules for files
+if (exists in Directory3)
+&nbsp;&nbsp;copy from Directory3
+else if (exists in Directory1 and Directory2)
+{
+&nbsp;&nbsp;if (same in Directory1 and Directory2)
+&nbsp;&nbsp;&nbsp;&nbsp;copy from Directory1
+&nbsp;&nbsp;else
+&nbsp;&nbsp;&nbsp;&nbsp;copy from Directory1 and Merge from Directory2
+}
+else if (exists in Directory1)
+&nbsp;&nbsp;copy from Directory1
+else
+&nbsp;&nbsp;copy from Directory2
+</pre>
+
+The ruleset would produce the following result:
+
+<table border="1" style="padding:4px;">
+<thead style="font-weight:bold;">
+<td>Directory1</td>
+<td>Directory2</td>
+<td>Directory3</td>
+<td>TargetDirectory</td>
+</thead>
+<tr>
+<td>Apple.txt</td>
+<td><span style="color:blue;">Apple.txt</span></td>
+<td><em>Null</em></td>
+<td>Copy Apple.txt then merge with <span style="color:blue;">Apple.txt</span></td>
+</tr>
+<tr>
+<td><em>Null</em></td>
+<td>Banana.txt</td>
+<td>Banana.txt</td>
+<td>Banana.txt</td>
+</tr>
+<tr>
+<td>Orange.txt</td>
+<td>Orange.txt</td>
+<td><span style="color:green;">Orange.txt</span></td>
+<td><span style="color:green;">Orange.txt</span></td>
+</tr>
+<tr>
+<td>Peach.txt</td>
+<td><em>Null</em></td>
+<td><em>Null</em></td>
+<td>Peach.txt</td>
+</tr>
+</table>
+
+Following the declarative approach, the ruleset itself doesn’t perform any operations (such as copy), instead it signals what its desired action is by returning an appropriate object to the framework. In other words, the rulesets are callback functions. The above example tells most of the story, with one exception: directories can contain other directories. Thus, the user actually supplies <strong>two rulesets, one for files and one for directories</strong>. The above ruleset is thus accompanied by another one for directories:
+
+<pre>
+// rules for directories
+if (exists in Directory1 and Directory2 and Directory3)
+&nbsp;&nbsp;create directory, descend and apply rulesets recursively
+else if (exists in Directory1 and not in Directory2 and not in Directory3)
+&nbsp;&nbsp;copy from Directory1
+else if (exists in Directory1 and Directory2 and not in Directory3)
+&nbsp;&nbsp;log path and do nothing
+...
+</pre>
+
+Without reproducing actual code these examples tell most of the story, with one exception: one ruleset does not work everywhere in the sourcetree. For our merging process, I created ~10 different rulesets, and applied them for different subtrees of our source tree. Also note that the different rulesets iterated a different number of source directories to figure out what to do, which was "free" with the framework, since the multi-file iterator is implemented for the general n-case.
+
+The one aspect of this approach that is <strong>not beautiful</strong> is keeping nested subtrees apart. Imagine applying Ruleset1 to DirectoryA’s subtree, which contains DirectoryB, where we would like to use Ruleset2. This has to be included in the ruleset itself:
+
+<pre>
+if (directory.path == “.../DirectoryB”)
+&nbsp;&nbsp;do not descend
+</pre>
+
+Fortunately, these cases were rare.
+
+<strong>Conclusion.</strong> The declarative migration tool worked out very well. With the new migration tool, the process went far quicker and smoother than before, while trivially supporting features such as logging of weird conditions (see previous example). The entire framework was about 1000 lines of code, but the rulesets themselves were in total about 100 – an order of magnitude less than the previous version. We went from having a special purpose “copy tool” to a general purpose migration tool with myriad of uses. Since the framework included an n-way multi-file iterator, we could have n-way rules for different parts of the tree, e.g. use a different number of source directories in each case, something we ended up doing routinely.
+
+<strong>Implementation.</strong> I wrote the framework in .NET / C#, since the company was a Windows-shop. This was not emphasised in the article, since pretty much anything (Python, C++) could be used to implement this framework in no more than 1000 lines of code. (Note that the rules were given in C# using framework primitives, i.e. the framework did not include a parser.)

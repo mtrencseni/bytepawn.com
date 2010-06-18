@@ -1,0 +1,3 @@
+bin/make
+rm -Rf /var/www/www.bytepawn.com/*
+cp -R blog/* /var/www/www.bytepawn.com/

@@ -1,0 +1,42 @@
+Thoughts on Yahoo's PNUTS distributed database
+
+thoughts-on-yahoos-pnuts-distributed-database
+
+2009/02/15
+
+I've updated the <a href="/readings-in-distributed-systems">Readings in Distributed Databases</a> with <a href="http://www.google.com/search?client=opera&rls=en&q=yahoo+pnuts&sourceid=opera&ie=utf-8&oe=utf-8">Yahoo's new PNUTS paper.</a>
+
+PNUTS is Yahoo's in-house distributed tablestore used for serving some of its web properties. The goal in this post is finding out the basics: how replication is managed, what kind of guarantees the system makes, can branching occur...
+MARKER
+
+<em>Note: this post may contain misunderstandings and it definitely contains speculations!</em>
+
+Reading the paper, it hits an interesting spot in design space. One of the major goals is geographic replication: reads and writes of data belonging to a user in India should be fast from India. But the same data is also accessed from different points on the globe, but these are most likely reads. It's acceptable if these "remote reads" see an older version of the data, as long as the versions are not branching (see below). Summing up: reads should be fast everywhere and may return older versions, writes should be fast locally (in the same datacenter).
+
+The article states that they want to avoid branching versions of data. <a href="http://www.google.com/search?client=opera&rls=en&q=paxos+made+simple&sourceid=opera&ie=utf-8&oe=utf-8">Paxos</a>, however, is out of the question here, since they may have as many as 10 replicas all geographically seperated, with 50-100 ms latencys. Since they're not using Paxos, it seems it is possible for divergent versions to occur in Yahoo's system. It's not clear to me what they're doing about this, the following quote is a "future plan":
+
+<blockquote>Under normal operation, if the master copy of a record fails, our system has protocols to fail over to another replica. However, if there are major outages, e.g. the entire region that had the master copy for a record becomes unreachable, updates cannot continue at another replica without potentially violating record-timeline consistency. We will allow applications to indicate, per-table, whether they want updates to continue in the presence of major outages, potentially branching the record timeline. If so, we will provide automatic conflict resolution and notifications thereof. The application will also be able to choose from several conflict resolution policies: e.g., discarding one branch, or merging updates from branches, etc.
+</blockquote>
+
+To come as close as possible to a "no branching" behavior, PNUTS uses a a 3-tiered architecture: there are 1. clients who initiate read and write operations, 2. the Yahoo Message Broker (MB) which they use as a basic replication primitive, and 3. geographically replicated storage nodes. The storage nodes use a master mechanism, where the master node is usually the one geographically closest to where the writes originate (in the same datacenter).
+
+<center>
+<img src="/images/branching.jpg" /><br/>
+<em>Branching.</em>
+</center>
+
+As far as I can tell, a write is managed like this: the client initiates the write operation at the master storage node. The node passes the write request on to the MB. The write is considered commited if the MB says it commited it. The master, if it doesn't go down in the meanwhile, performs the write on its local data. The MB guarantees that it will deliver the write operation to the other replicas. The nice property of this setup is that if the master and the MB are in the same datacenter as the client then they don't have to wait for the replicas in distant datacenters to commit to their disks --- this is handled and waited on later by the MB.
+
+The MB is not discussed in this or any other paper. I think it may be made up of n=3 Paxos cells. They say that there are many message brokers, which if I'm right means many Paxos cells. Write operations stored within a MB cell are guaranteed to be delivered in that order to the replicas (this seems easy), but what about writes (of the same data) stored in different MB cells? Here the paper is somewhat confusing to me. They write:
+
+<blockquote>We provide per-record timeline consistency: all replicas of a given record apply all updates to the record in the same order.</blockquote>
+
+and
+
+<blockquote>.. in order to provide timeline consistency, we have developed a per-record mastership mechanism, and the updates published by a record's master to a single YMB cluster are delivered in the published order to the other replicas.</blockquote>
+
+The second quote above seems to imply that the first one is only true for writes coming from the same MB cell. 
+
+Basically, the trick is that write operations are handed over to a MB cell, which then acts as a single logical writer. What happens if there is a master-failover and the new master publishes to a different MB? Given that the MB cells themselves are not in some sort of higher level Paxos cell, and the storage nodes also are not in a Paxos cell, I think all bets are off at this point and branching versions can come in, as discussed at the beginning.
+
+Of course, since you cannot put replicas in different datacenters in a Paxos cell, you are forced to do something like this! It's an interesting approach, as it's somewhere between a full-on Paxos like in <a href="http://labs.google.com/papers/chubby.html">Google's Chubby</a>, and full-on branching like in <a href="http://www.google.com/search?hl=en&client=opera&rls=en&hs=eS9&q=Dynamo%3A+Amazon%E2%80%99s+Highly+Available+Key-value+Store&btnG=Search">Amazon's Dynamo</a>. The architecture is interesting to say the least, but my question is this: if the user has to prepare for branching and has to write the conflict resolution code, wouldn't a Dynamo-like (with some basic logic to always choose local nodes to write to) system be simpler and possibly faster?

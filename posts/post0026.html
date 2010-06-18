@@ -1,0 +1,16 @@
+Write frameworkey programs
+
+write-frameworkey-programs
+
+2010/03/11
+
+We spend many hours a day pondering what separates successful programming projects from not-so successful ones. At the beginning we are enthusiastic and write lots of code, but towards the end we are often dissatisfied with the actual code — irrespective of whether it gets the job done! The problem is, many, if not most programs turn out to be <i>brittle</i>, and we know it.
+MARKER
+
+This often happens even if we spend a great amount of time at the beginning specifying and designing the program. This is because by the end of 1.0, and later during the lifetime of the project requirements change as features are added, irrespective of the amount of planning that happens at the beginning. But no amount of planning will make a program designed to solve the original problem solve a different problem. That's just not what planning is about: planning is about fleshing out the original problem.
+
+This is why, in many cases, redesigning a large program at 2.0 still results in a brittle program: the program is still specific to a single requirement, though by now a different one.
+
+My conclusion — based on comparing my programs to better programmer's programs — is that one must write a domain-specific "framework" (*) that is more general than the original requirements, but admits the original requirements as a special case. This way, if requirements change — and they will — one has a chance of accomodating them. Even so, the original framework will certainly not be general enough, but it will be easier to adapt. The trick is, of course, to find just the right dimensions to generalize and just the right amount of generalizations.
+
+(*) When I say domain-specific framework, I mean that the actual domain specific functionality is generalized in the program, versus just writing general functions for handling strings and linked lists while still encoding the domain specific functionality in a brittle manner.

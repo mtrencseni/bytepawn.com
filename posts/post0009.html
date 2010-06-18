@@ -1,0 +1,60 @@
+Show Me Your Data Structure...
+
+show-me-your-data-structure
+
+2008/09/10
+
+There's an old programming proverb which goes something like this:
+
+<blockquote>
+Show me you algorithm,<br/>
+and I will remain puzzled,<br/>
+but show me your data structure,<br/>
+and I will be enlightened.
+</blockquote>
+MARKER
+
+This is a statement about software and coding, but first and foremost it is about human cognition. The way my brain works is to first visualize the data and then imagine what the algorithm does to it.
+
+Given this cognitive limitation of my brain, I favor static, strong, class-based typing (C/C++) over dynamic, weak, object-based typing (JavaScript).
+
+To give a strong example and stir up some controversy, consider Chapter 9 of <a href="http://www.amazon.com/Beautiful-Code-Leading-Programmers-Practice/dp/0596510047">Beautiful Code</a>: Top Down Operator Precedence by <a href="http://www.crockford.com/">Douglas Crockford</a>. You can <a href="http://javascript.crockford.com/tdop/tdop.html">read it here</a>, and you should to really get a feeling for what's going on...
+
+I think it's spaghetti code.
+
+<img src="/images/baby-spaghetti.jpg" />
+
+The problems with his approach are many:
+
+<ul>
+<li>No complete declarations of complete types, even though it would be (kind of) possible with JavaScript. So I can't start by vizualizing the data structures.</li>
+<li>No type declarations, but lots of confusing variable names, so I'm constantly going back trying to figure out what's what.</li>
+<li>Dynamic modification of fields in objects. For example the function <span class="code">advance()</span> adds the field <span class="code">arity</span> to the token object, which was not declared anywhere, so you only find out about this by reading this function. This goes against everything sane in programming.</li>
+<li>Going completely overboard, the field <span class="code">arity</span> is used to store whether a token is a "name", "literal" or "operator" but later, for operators, changes this field to "unary", "binary", etc. (Truly bad programming, but not related to my argument about typing.)</li>
+<li>To deliver the final blow to understandablity, in functional style, the member functions of the objects are dynamically added and modified. At this point, if I see an object, I don't know its "type", but even if somebody tells me that, I don't know what state that "type" is in: what the data fields are, what they are used for and what the member functions do.</li>
+<li>Given the cognitive difficulties above, how does one look over the code to verify that it's correct? It's hard enough with static languages, here it seems quixotic. How about finding bugs?</li>
+</ul>
+
+As I was trying to understand the code, I found myself writing out on a piece of paper the different "types" of objects that come up in the code --- in other words the classes. I was writing the header files for the code in order to untangle the mess!
+
+To close this rant, I'll quote a <a href="http://people.csail.mit.edu/gregs/ll1-discuss-archive-html/msg03615.html">thread Google turned up</a>:
+
+<pre>
+> A while ago there was one of those static-vs-dynamic debates (in the hackers
+> and painters thread, I think), and somewhere (I'm sure) someone mentioned a
+> quote along the lines of:
+> 
+> Early on in a project, as code is rapidly evolving, you want static typing
+> to help you as much as possible. When the code has matured (it's well tested
+> and not changing much), you want more dynamic typing so that the design can
+> be more flexible.
+> 
+> Can anyone remember who said this?
+> 
+Not me.  But it's interesting.  Usually the argument goes the other way:
+Early on in a project, as code is rapidly evolving, you want dynamic
+typing to keep as many design options open as possible. When the code has
+matured (it's well tested and not changing much), you want more static
+typing for efficiency and to help root out obscure bugs that may be
+waiting to manifest themselves.
+</pre>

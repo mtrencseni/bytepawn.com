@@ -1,0 +1,21 @@
+Introducing PrimoBlog
+
+introducing-primoblog
+
+2009/01/08
+
+In an effort to get rid of compromisable targets on my server, I decided to roll my own "blog engine": PrimoBlog. As the name implies, it's quite primitive. It consists of 123 lines of shell code plus the framing HTML and CSS code. It generates static HTML and RSS from text files, so no PHP or Mysql is involved.
+MARKER
+
+The decision was inspired by <a href="http://www.daemonology.net/blog/2005-09-12-blogsh.html">Colin Percival</a>:
+<blockquote>
+As many people who know me will be aware, I tend towards minimalism in computer software. As a result, when I decided to start writing this, I looked around for the simplest blogging software I could find (it was NanoBlogger) and decided that it was far too complex for my taste. So I wrote my own.
+</blockquote>
+
+I don't need most of the features of a full blown blog engine like WordPress.
+<ul>
+<li>PrimoBlog generates a static index of all articles. I think grouping by year and month is mostly useless.</li>
+<li>For comments, I use <a href="http://www.disqus.com">disqus</a>, which only involves placing some JavaScript at the end of the HTML. It's a free lunch, really.</li>
+<li>Using anything but Google for searching is stupid anyways.</li>
+<li>Nobody cares about categories and tags and nifty per-category icons. Contents over style.</li>
+</ul>
