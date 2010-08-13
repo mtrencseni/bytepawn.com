@@ -1,0 +1,26 @@
+Git Cheatsheet for The Rest of Us
+
+git-cheatsheet-for-the-rest-of-us
+
+2010/08/13
+
+Here at <a href="http://scalien.com">Scalien</a> we've been git users for a while now, with <a href="http://github.com/scalien/keyspace">Keyspace being hosted on github</a>. We've had great experiences with both <a href="http://git-scm.com/">git</a> and <a href="http://github.com">Github</a>.
+
+The distributed nature of git is wonderful: we are able to commit locally into the local repo, and later push to the main github repo. Cloning is a great way for everyone to create forks for experimenting around and adding smaller features. Although git in itself is pretty cool, Github is the "killer app": it makes source control management beatiful, gives us a nice clicky interface for repo admin tasks, and lets everyone clone easily. We pay $12 for the small plan, this gives us 10 private repos to keep stealth mode projects in stealth mode. I bought the <a href="http://progit.org/book/">Pro Git</a> book by <a href="http://twitter.com/CHACON">Scott Chacon</a> on Amazon for $23, who incidentally works at Github.
+MARKER
+
+Git is all about the command line switches. Over the last couple of months, I've created a nice cheatsheet for our most common (non-trivial) git commands so we don't always end up googling them, mostly based on the Pro Git book and <a href="http://stackoverflow.com/">StackOverflow</a> QAs. It also contains the 2+1 major gotchas I've encountered:
+
+<ol>
+<li>Do not amend commits that you have pushed to a public repository!</li>
+<li>Do not rebase commits that you have  pushed to a public repository!</li>
+<li>Always update to the latest git major version (currently at 1.7.x)</li>
+</ol>
+
+Always keep these in mind and your co-developers won't hate you.
+
+Finally, <a href="http://bytepawn.com/files/git.pdf"><b>here's the cheat sheet (PDF)</b></a>, and a preview:
+
+<iframe src="http://docs.google.com/gview?embedded=true&url=http://bytepawn.com/files/git.pdf"
+style="width:800px; height:600px;" frameborder="0"></iframe>
+
